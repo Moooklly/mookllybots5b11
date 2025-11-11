@@ -147,55 +147,85 @@ bot.on('chat', (username, message) => {
   const now = Date.now();
   const cooldown = cooldowns[username];
 
-  // ===== أمر TPA =====
-  if (args[0].toLowerCase() === '!tpa' && args[1]) {
-    const target = args[1];
+ // ==================================================
+// ✅ نظام تخزين طلبات الـ TPA
+// ==================================================
+const tpaRequests = {}; 
+// الشكل:
+// tpaRequests[username] = {
+//   time: <Timestamp>,
+//   status: "pending"
+// };
 
-    if (cooldown && now - cooldown < 300000) {
-      const remaining = Math.ceil((300000 - (now - cooldown)) / 60000);
-      return bot.chat(`/tell ${username} ⌛ انتظر ${remaining} دقيقة`);
+// ==================================================
+// ✅ استقبال الشات (حط هذا الحدث عندك)
+// ==================================================
+bot.on("chat", (username, message) => {
+    if (username === bot.username) return;
+
+    // ================================
+    // ✅ أمر !tpa (طلب يجي لعندك)
+    // ================================
+    if (message === "!tpa") {
+        tpaRequests[username] = {
+            status: "pending",
+            time: Date.now()
+        };
+
+        bot.chat(`✅ ${username} طلب TPA`);
+        bot.chat(`ℹ️ اكتب !ac للقبول أو !dc للرفض`);
+        bot.chat(`⏳ بينتهي الطلب بعد دقيقتين`);
+
+        // 🔥 حذف الطلب تلقائيًا بعد دقيقتين
+        setTimeout(() => {
+            if (tpaRequests[username] && tpaRequests[username].status === "pending") {
+                delete tpaRequests[username];
+                bot.chat(`⌛ انتهى وقت طلب TPA من ${username}`);
+            }
+        }, 2 * 60 * 1000);
     }
 
-    tpaRequests[target] = { from: username, time: now };
-    cooldowns[username] = now;
+    // ================================
+    // ✅ أمر !ac (قبول آخر طلب)
+    // ================================
+    if (message === "!ac") {
 
-    bot.chat(`/tell ${username} 📨 تم ارسال طلبك إلى ${target}`);
-    bot.chat(`/tell ${target} 📨 ${username} يريد الانتقال إليك!`);
-    bot.chat(`/tell ${target} اكتب: !ac ${username} للقبول`);
-    bot.chat(`/tell ${target} أو: !dn ${username} للرفض`);
+        // البحث عن أول طلب pending
+        const sender = Object.keys(tpaRequests).find(
+            u => tpaRequests[u].status === "pending"
+        );
 
-    setTimeout(() => {
-      if (tpaRequests[target] && tpaRequests[target].from === username) {
-        bot.chat(`/tell ${target} ❌ لم ترد على الطلب`);
-        bot.chat(`/tell ${username} ❌ تم رفض طلبك تلقائيًا`);
-        delete tpaRequests[target];
-      }
-    }, 120000);
-    return;
-  }
+        if (!sender) {
+            bot.chat("❌ ما فيه أي طلب TPA");
+            return;
+        }
 
-  // ===== قبول طلبات TPA =====
-  if (args[0].toLowerCase() === '!ac') {
-    const from = args[1];
-    if (!from || !tpaRequests[username] || tpaRequests[username].from !== from)
-      return bot.chat(`/tell ${username} ❌ لا يوجد طلب من ${from || 'أي لاعب'}.`);
+        tpaRequests[sender].status = "accepted";
 
-    bot.chat(`/tell ${from} ✅ تم قبول طلبك`);
-    bot.chat(`/tp ${from} ${username}`);
-    delete tpaRequests[username];
-    return;
-  }
+        bot.chat(`✅ قبلت طلب TPA من: ${sender}`);
+        bot.chat(`/tp ${sender} ${bot.username}`);
 
-  // ===== رفض =====
-  if (args[0].toLowerCase() === '!dn') {
-    const from = args[1];
-    if (!from || !tpaRequests[username] || tpaRequests[username].from !== from)
-      return bot.chat(`/tell ${username} ❌ لا يوجد طلب من ${from || 'أي لاعب'}.`);
+        delete tpaRequests[sender];
+    }
 
-    bot.chat(`/tell ${from} ❌ تم رفض طلبك.`);
-    delete tpaRequests[username];
-    return;
-  }
+    // ================================
+    // ✅ أمر !dc (رفض آخر طلب)
+    // ================================
+    if (message === "!dc") {
+
+        const sender = Object.keys(tpaRequests).find(
+            u => tpaRequests[u].status === "pending"
+        );
+
+        if (!sender) {
+            bot.chat("❌ ما فيه أي طلب TPA");
+            return;
+        }
+
+        bot.chat(`❌ رفضت طلب TPA من: ${sender}`);
+
+        delete tpaRequests[sender];
+    }
 
   // ===== باقي أوامرك =====
   if (args[0].toLowerCase() === '!s') {

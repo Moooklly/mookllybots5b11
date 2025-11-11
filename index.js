@@ -147,85 +147,64 @@ bot.on('chat', (username, message) => {
   const now = Date.now();
   const cooldown = cooldowns[username];
 
- // ==================================================
-// ✅ نظام تخزين طلبات الـ TPA
-// ==================================================
-const tpaRequests = {}; 
-// الشكل:
-// tpaRequests[username] = {
-//   time: <Timestamp>,
-//   status: "pending"
-// };
+// ===== أمر TPA =====
+if (args[0].toLowerCase() === '!tpa' && args[1]) {
+  const target = args[1];
 
-// ==================================================
-// ✅ استقبال الشات (حط هذا الحدث عندك)
-// ==================================================
-bot.on("chat", (username, message) => {
-    if (username === bot.username) return;
+  if (cooldown && now - cooldown < 300000) {
+    const remaining = Math.ceil((300000 - (now - cooldown)) / 60000);
+    return bot.chat(`/tell ${username} ⌛ انتظر ${remaining} دقيقة`);
+  }
 
-    // ================================
-    // ✅ أمر !tpa (طلب يجي لعندك)
-    // ================================
-    if (message === "!tpa") {
-        tpaRequests[username] = {
-            status: "pending",
-            time: Date.now()
-        };
+  tpaRequests[target] = { from: username, time: now };
+  cooldowns[username] = now;
 
-        bot.chat(`✅ ${username} طلب TPA`);
-        bot.chat(`ℹ️ اكتب !ac للقبول أو !dc للرفض`);
-        bot.chat(`⏳ بينتهي الطلب بعد دقيقتين`);
+  bot.chat(`/tell ${username} 📨 تم ارسال طلبك إلى ${target}`);
+  bot.chat(`/tell ${target} 📨 ${username} يريد الانتقال إليك!`);
+  bot.chat(`/tell ${target} اكتب: !ac للقبول`);
+  bot.chat(`/tell ${target} أو: !dn للرفض`);
 
-        // 🔥 حذف الطلب تلقائيًا بعد دقيقتين
-        setTimeout(() => {
-            if (tpaRequests[username] && tpaRequests[username].status === "pending") {
-                delete tpaRequests[username];
-                bot.chat(`⌛ انتهى وقت طلب TPA من ${username}`);
-            }
-        }, 2 * 60 * 1000);
+  setTimeout(() => {
+    if (tpaRequests[target] && tpaRequests[target].from === username) {
+      bot.chat(`/tell ${target} ❌ لم ترد على الطلب`);
+      bot.chat(`/tell ${username} ❌ تم رفض طلبك تلقائيًا`);
+      delete tpaRequests[target];
     }
+  }, 120000); // دقيقتين
+  return;
+}
 
-    // ================================
-    // ✅ أمر !ac (قبول آخر طلب)
-    // ================================
-    if (message === "!ac") {
+// ===== قبول طلبات TPA =====
+if (args[0].toLowerCase() === '!ac') {
 
-        // البحث عن أول طلب pending
-        const sender = Object.keys(tpaRequests).find(
-            u => tpaRequests[u].status === "pending"
-        );
+  // نلقى الشخص اللي طالب ينتقل لك
+  const request = tpaRequests[username];
+  if (!request)
+    return bot.chat(`/tell ${username} ❌ لا يوجد أي طلب TPA.`);
 
-        if (!sender) {
-            bot.chat("❌ ما فيه أي طلب TPA");
-            return;
-        }
+  const from = request.from;
 
-        tpaRequests[sender].status = "accepted";
+  bot.chat(`/tell ${from} ✅ تم قبول طلبك`);
+  bot.chat(`/tp ${from} ${username}`);
 
-        bot.chat(`✅ قبلت طلب TPA من: ${sender}`);
-        bot.chat(`/tp ${sender} ${bot.username}`);
+  delete tpaRequests[username];
+  return;
+}
 
-        delete tpaRequests[sender];
-    }
+// ===== رفض =====
+if (args[0].toLowerCase() === '!dn') {
 
-    // ================================
-    // ✅ أمر !dc (رفض آخر طلب)
-    // ================================
-    if (message === "!dc") {
+  const request = tpaRequests[username];
+  if (!request)
+    return bot.chat(`/tell ${username} ❌ لا يوجد أي طلب TPA.`);
 
-        const sender = Object.keys(tpaRequests).find(
-            u => tpaRequests[u].status === "pending"
-        );
+  const from = request.from;
 
-        if (!sender) {
-            bot.chat("❌ ما فيه أي طلب TPA");
-            return;
-        }
+  bot.chat(`/tell ${from} ❌ تم رفض طلبك.`);
+  delete tpaRequests[username];
+  return;
+}
 
-        bot.chat(`❌ رفضت طلب TPA من: ${sender}`);
-
-        delete tpaRequests[sender];
-    }
 
   // ===== باقي أوامرك =====
   if (args[0].toLowerCase() === '!s') {

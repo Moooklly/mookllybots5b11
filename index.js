@@ -140,39 +140,14 @@ function createBot() {
       // ===============================
       // ✅ أوامر الشات
       // ===============================
-bot.on('chat', (username, rawMessage) => {
-  if (!rawMessage) return;
+bot.on('chat', (username, message) => {
+  if (username === bot.username) return;
 
-  let message = rawMessage;
-
-  // ✅ لاعبين البيدروك أسماؤهم تجي مثل: *Player
-  if (username.startsWith("*")) {
-    username = username.slice(1);
-  }
-
-  // ✅ رسائل البيدروك تجي أحيانًا كـ object وليس string
-  if (typeof message !== "string") {
-    try { message = message.toString(); }
-    catch { return; }
-  }
-
-  // ✅ إزالة أكواد الألوان من رسائل البيدروك
-  message = message.replace(/§[0-9a-fklmnor]/gi, "");
-
-  // ✅ إزالة الوسم <Player>
-  message = message.replace(/^<.*?>\s?/, "");
-
-  message = message.trim();
-
-  console.log(`[ChatFix] ${username}: ${message}`);
-
-  const args = message.split(" ");
+  const args = message.trim().split(' ');
   const now = Date.now();
   const cooldown = cooldowns[username];
 
-  // ======================
-  // ✅ أمر !tpa فقط
-  // ======================
+  // ===== أمر TPA =====
   if (args[0].toLowerCase() === '!tpa' && args[1]) {
     const target = args[1];
 
@@ -199,41 +174,30 @@ bot.on('chat', (username, rawMessage) => {
     return;
   }
 
-  // ======================
-  // ✅ قبول الطلب
-  // ======================
+  // ===== قبول طلبات TPA =====
   if (args[0].toLowerCase() === '!ac') {
     const from = args[1];
-    const req = tpaRequests[username];
-
-    if (!req || req.from !== from)
-      return bot.chat(`/tell ${username} ❌ لا يوجد طلب من ${from}.`);
+    if (!from || !tpaRequests[username] || tpaRequests[username].from !== from)
+      return bot.chat(`/tell ${username} ❌ لا يوجد طلب من ${from || 'أي لاعب'}.`);
 
     bot.chat(`/tell ${from} ✅ تم قبول طلبك`);
     bot.chat(`/tp ${from} ${username}`);
-
     delete tpaRequests[username];
     return;
   }
 
-  // ======================
-  // ✅ رفض الطلب
-  // ======================
+  // ===== رفض =====
   if (args[0].toLowerCase() === '!dn') {
     const from = args[1];
-    const req = tpaRequests[username];
-
-    if (!req || req.from !== from)
-      return bot.chat(`/tell ${username} ❌ لا يوجد طلب من ${from}.`);
+    if (!from || !tpaRequests[username] || tpaRequests[username].from !== from)
+      return bot.chat(`/tell ${username} ❌ لا يوجد طلب من ${from || 'أي لاعب'}.`);
 
     bot.chat(`/tell ${from} ❌ تم رفض طلبك.`);
     delete tpaRequests[username];
     return;
   }
 
-  // ======================
-  // ✅ باقي أوامرك نفس ما هي
-  // ======================
+  // ===== باقي أوامرك =====
   if (args[0].toLowerCase() === '!s') {
     const x = 381, y = 63, z = 446;
     bot.chat(`/tell ${username} 🚀 تم نقلك الآن إلى X:${x} Y:${y} Z:${z}`);
@@ -262,7 +226,7 @@ bot.on('chat', (username, rawMessage) => {
   }
 
   if (message.toLowerCase().includes('sp?')) bot.chat(`Hi ${username}`);
-  if (message === '!help') bot.chat(`Commands: !tpa <@> ,!we`);
+  if (message === '!help') bot.chat(`Commands: !tpa <@> , !we`);
   if (message === '!time')
     bot.chat(`/tell ${username} ⌛ Time: ${Math.floor(bot.time.timeOfDay / 1000)}`);
     });

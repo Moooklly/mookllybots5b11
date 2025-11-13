@@ -8,9 +8,7 @@
   "server": {
     "ip": "S5BServer2.aternos.me", 
     "port": 59668,   
-    "version": "1.12.1",
-    "bedrock-enabled": true,
-    "bedrock-prefix": "."
+    "version": "1.12.1"
   },
   
   "position": {

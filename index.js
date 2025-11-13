@@ -207,6 +207,9 @@ if (args[0].toLowerCase() === '!dn') {
 
 let hasSleptThisNight = false;
 
+let autoSleepEnabled = false;
+let hasSleptThisNight = false;
+
 // ===== أوامر النوم التلقائي =====
 if (message.toLowerCase() === '!sleepon') {
   autoSleepEnabled = true;
@@ -227,7 +230,6 @@ bot.on('time', () => {
   const time = bot.time.timeOfDay;
   const isNight = bot.time.isNight;
 
-  // إذا صار الليل ولم يتم التبديل بعد
   if ((isNight || (time > 13000 && time < 23000)) && !hasSleptThisNight) {
     hasSleptThisNight = true;
     bot.chat('/time set day');
@@ -236,11 +238,11 @@ bot.on('time', () => {
     console.log('[AutoSleep] الليل جاء، تم تحويل الوقت إلى صباح.');
   }
 
-  // إذا رجع النهار، نرجع العلامة
   if (!isNight && time < 13000) {
     hasSleptThisNight = false;
   }
 });
+
 
      
   // ===== باقي أوامرك =====

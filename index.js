@@ -205,7 +205,35 @@ if (args[0].toLowerCase() === '!dn') {
   return;
 }
 
+    // ===== أوامر النوم التلقائي =====
+    if (message.toLowerCase() === '!sleepon') {
+      autoSleepEnabled = true;
+      bot.chat(`💤 تم تفعيل النوم التلقائي! البوت سينام تلقائي عندما يأتي الليل.`);
+      return;
+    }
 
+    if (message.toLowerCase() === '!sleepoff') {
+      autoSleepEnabled = false;
+      bot.chat(`🌅 تم إيقاف النوم التلقائي.`);
+      return;
+    }
+
+============
+  // ===== نظام النوم التلقائي =====
+  bot.on('time', () => {
+    if (!autoSleepEnabled) return;
+
+    const time = bot.time.timeOfDay;
+    const isNight = bot.time.isNight;
+
+    if (isNight || (time > 13000 && time < 23000)) {
+      bot.chat('/time set day');
+      bot.chat('💤 نام في السرير بسبب تفعيل النوم التلقائي !');
+      bot.chat('تقدر توقف هاذا الشي عن طريق ( !sleepoff )');
+      console.log('[AutoSleep] الليل جاء، تم تحويل الوقت إلى صباح.');
+    }
+  });
+     
   // ===== باقي أوامرك =====
   if (args[0].toLowerCase() === '!s') {
     const x = 381, y = 63, z = 446;

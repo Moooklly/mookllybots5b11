@@ -218,7 +218,7 @@ if (args[0].toLowerCase() === '!dn') {
       return;
     }
 
-============
+//============
   // ===== نظام النوم التلقائي =====
   bot.on('time', () => {
     if (!autoSleepEnabled) return;

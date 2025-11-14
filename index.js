@@ -218,8 +218,8 @@ const bot = mineflayer.createBot({
         return;
       }
 
-      if (args[0].toLowerCase() === '!123123131') {
-        const x = -649, y = 71, z = -3457;
+      if (args[0].toLowerCase() === '!س') {
+        const x = 381, y = 63, z = 446;
         bot.chat(`/tell ${username} 🚀 تم نقلك الآن إلى X:${x} Y:${y} Z:${z}`);
         bot.chat(`/tp ${username} ${x} ${y} ${z}`);
         return;

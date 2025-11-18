@@ -225,12 +225,19 @@ const bot = mineflayer.createBot({
         return;
       }
 
-      if (args[0].toLowerCase() === '!123123123123123') {
-        const x = -2136, y = 65, z = -74;
-        bot.chat(`/tell ${username} 🚀 تم نقلك الآن إلى X:${x} Y:${y} Z:${z}`);
-        bot.chat(`/tp ${username} ${x} ${y} ${z}`);
-        return;
-      }
+    if (args[0].toLowerCase() === '!n') {
+      const x = 346, y = 32, z = 2489;
+      bot.chat(`/tell ${username} 🚀 ز:${z} و:${y} س:${x} :Z X ىلا نلآ كـلقت نم`);
+      bot.chat(`/tp ${username} ${x} ${y} ${z}`);
+      return;
+    }
+
+     if (args[0].toLowerCase() === '!ى') {
+      const x = 346, y = 32, z = 2489;
+      bot.chat(`/tell ${username} 🚀 ز:${z} و:${y} س:${x} :Z X ىلا نلآ كـلقت نم`);
+      bot.chat(`/tp ${username} ${x} ${y} ${z}`);
+      return;
+    }
 
       if (args[0].toLowerCase() === '!we') {
         bot.chat(`🌅 تم تنظيف الجو`);

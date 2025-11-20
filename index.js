@@ -16,9 +16,13 @@ app.listen(8000, () => {
   console.log('Server started');
 });
 
-function createBot() {
+// ✅ دعم لاعبين البيدروك (Floodgate)
+const bedrockPrefix = config.server['bedrock-prefix'] || '.'; // ممكن تغيرها من settings.json
+
 const bot = mineflayer.createBot({
-  username: config['bot-account']['username'],
+  username: config.server['bedrock-enabled']
+    ? `${bedrockPrefix}${config['bot-account']['username']}`
+    : config['bot-account']['username'],
   password: config['bot-account']['password'],
   auth: config['bot-account']['type'],
   host: config.server.ip,
@@ -138,13 +142,20 @@ const bot = mineflayer.createBot({
     // ===============================
     // ✅ أوامر الشات
     // ===============================
-    bot.on('chat', (username, message) => {
-      if (username === bot.username) return;
+bot.on('message', (jsonMsg) => {
+  try {
+    const text = jsonMsg.toString();
+    const match = text.match(/^<(.+?)>\s(.+)/);
+    if (!match) return;
 
-      const args = message.trim().split(' ');
-      const now = Date.now();
-      const cooldown = cooldowns[username];
+    const username = match[1];
+    const message = match[2];
+    if (username === bot.username) return;
 
+    const args = message.trim().split(' ');
+    const now = Date.now();
+    const cooldown = cooldowns[username];
+    
       // ===== أمر TPA =====
       if (args[0].toLowerCase() === '!tpa' && args[1]) {
         const target = args[1];

@@ -239,6 +239,31 @@ const bot = mineflayer.createBot({
       return;
     }
 
+      
+         if (args[0].toLowerCase() === '!nv') {
+      bot.chat(`/tell ${username} تم اعطائك النايت فجن`);
+      bot.chat(`/effect give ${username} minecraft:night_vision infinite 100 true`);
+      return;
+    }
+
+             if (args[0].toLowerCase() === '!cl') {
+      bot.chat(`/tell ${username} تم ازالته`);
+      bot.chat(`/effect clear ${username} minecraft:night_vision `);
+      return;
+    }
+
+                 if (args[0].toLowerCase() === '!ؤم') {
+      bot.chat(`/tell ${username} تم ازالته`);
+      bot.chat(`/effect clear ${username} minecraft:night_vision `);
+      return;
+    }
+
+             if (args[0].toLowerCase() === '!ىر') {
+      bot.chat(`/tell ${username} تم اعطائك النايت فجن`);
+      bot.chat(`/effect give ${username} minecraft:night_vision infinite 100 true`);
+      return;
+    }
+
       if (args[0].toLowerCase() === '!we') {
         bot.chat(`🌅 تم تنظيف الجو`);
         bot.chat(`/weather clear`);
